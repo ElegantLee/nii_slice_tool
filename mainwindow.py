@@ -7,8 +7,17 @@
 
 import os
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
+from PyQt5.Qt import QThread, QMutex, pyqtSignal
 from uiMainwindow import Ui_MainWindow
 
+class SliceThread(QThread):
+
+    def __init__(self):
+        super(SliceThread, self).__init__()
+
+    def run(self):
+
+        pass
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 
@@ -34,32 +43,41 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # 点击slice button后，更新log
         # self.slice_button.clicked.connect(self.log_textEdit)
 
+    # option---open---打开单个nii文件
     def open_file(self):
         file_name, file_type = QFileDialog.getOpenFileName(self, caption='Open a nii file',
                                                            directory=self.cwd, filter="nii files (*.nii)")
 
         self.filename_lineEdit.setText(file_name)
 
+    # option---open folder---打开一个文件夹
     def open_folder(self):
         file_dir = QFileDialog.getExistingDirectory(self, caption='open a directory',
                                                     directory='D:/')
         self.folder_path_lineEdit.setText(file_dir)
 
+    # 设置冠状切片的输出路径
     def set_coronal_path(self):
         dir = QFileDialog.getExistingDirectory(self, 'set coronal slice output path', directory='D:/')
         self.output_path['coronal'] = dir
         self.coronal_path_lineEdit.setText(dir)
 
-
+    # 设置水平切片的输出路径
     def set_axial_path(self):
         dir = QFileDialog.getExistingDirectory(self, 'set axial slice output path', directory='D:/')
         self.output_path['axial'] = dir
         self.axial_path_lineEdit.setText(dir)
 
+    # 设置矢状切片的输出路径
     def set_sagittal_path(self):
         dir = QFileDialog.getExistingDirectory(self, 'set sagittal slice output path', directory='D:/')
         self.output_path['sagittal'] = dir
+        print(self.output_path)
         self.sagittal_path_lineEdit.setText(dir)
 
+    # 启动切片---切片的主要逻辑
     def do_slice(self):
+
         pass
+
+
