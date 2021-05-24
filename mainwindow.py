@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from PyQt5.Qt import QThread, QMutex, pyqtSignal
 from uiMainwindow import Ui_MainWindow
 
+
 class SliceThread(QThread):
 
     def __init__(self):
@@ -18,6 +19,7 @@ class SliceThread(QThread):
     def run(self):
 
         pass
+
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 
