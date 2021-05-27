@@ -281,7 +281,7 @@
              </layout>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="option_layout" stretch="0,0,0,0">
+             <layout class="QHBoxLayout" name="all_direction_layout">
               <property name="topMargin">
                <number>8</number>
               </property>
@@ -289,11 +289,49 @@
                <number>8</number>
               </property>
               <item>
+               <widget class="QLabel" name="all_direction_label">
+                <property name="text">
+                 <string>all</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="all_path_lineEdit"/>
+              </item>
+              <item>
+               <widget class="QToolButton" name="all_path_toolButton">
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="option_layout" stretch="0,0,0,0,0,0,0,0">
+              <property name="topMargin">
+               <number>8</number>
+              </property>
+              <property name="bottomMargin">
+               <number>8</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="slice_option_label">
+                <property name="text">
+                 <string>direction</string>
+                </property>
+                <property name="margin">
+                 <number>0</number>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QComboBox" name="slice_option_comboBox">
                 <property name="font">
                  <font>
                   <family>Book Antiqua</family>
                   <pointsize>11</pointsize>
+                  <stylestrategy>PreferAntialias</stylestrategy>
                  </font>
                 </property>
                 <item>
@@ -319,6 +357,65 @@
                </widget>
               </item>
               <item>
+               <widget class="QLabel" name="rotate_label">
+                <property name="text">
+                 <string>rotate</string>
+                </property>
+                <property name="margin">
+                 <number>0</number>
+                </property>
+                <property name="indent">
+                 <number>10</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="rotate_comboBox">
+                <item>
+                 <property name="text">
+                  <string>Yes</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>No</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="rotate_num_label">
+                <property name="text">
+                 <string>rotate_num</string>
+                </property>
+                <property name="margin">
+                 <number>0</number>
+                </property>
+                <property name="indent">
+                 <number>10</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="rotate_num_comboBox">
+                <item>
+                 <property name="text">
+                  <string>90</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>180</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>270</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
                <spacer name="option_spacer_2">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -328,7 +425,7 @@
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
-                  <width>40</width>
+                  <width>20</width>
                   <height>20</height>
                  </size>
                 </property>
@@ -340,22 +437,6 @@
                  <string>slice</string>
                 </property>
                </widget>
-              </item>
-              <item>
-               <spacer name="option_spacer_1">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeType">
-                 <enum>QSizePolicy::Expanding</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>194</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
               </item>
              </layout>
             </item>

@@ -27,9 +27,10 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.central_widget.sizePolicy().hasHeightForWidth())
         self.central_widget.setSizePolicy(sizePolicy)
-        # font = QtGui.QFont()
-        # font.setFamily("Book Antiqua")
-        # self.central_widget.setFont(font)
+        # 设置字体
+        font = QtGui.QFont()
+        font.setFamily("Book Antiqua")
+        self.central_widget.setFont(font)
         self.central_widget.setObjectName("central_widget")
 
         # 设置窗口样式
@@ -46,6 +47,7 @@ class Ui_MainWindow(object):
         self.mainwindow_layout.setSizePolicy(sizePolicy)
         self.mainwindow_layout.setMinimumSize(QtCore.QSize(100, 100))
         self.mainwindow_layout.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        # 设置字体
         font = QtGui.QFont()
         font.setFamily("Book Antiqua")
         font.setPointSize(11)
@@ -80,7 +82,7 @@ class Ui_MainWindow(object):
 
         # 左边窗口的布局
         self.left_layout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
-        self.left_layout.setSizeConstraint(QtWidgets.QLayout.SetNoConstraint)
+        self.left_layout.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
         self.left_layout.setContentsMargins(10, 6, 10, 10)
         self.left_layout.setObjectName("left_layout")
 
@@ -124,14 +126,14 @@ class Ui_MainWindow(object):
         # self.input_path_layout.addWidget(self.input_path_toolButton)
         self.input_layout.addLayout(self.input_path_layout)
         self.left_layout.addLayout(self.input_layout)
-        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.left_layout.addItem(spacerItem)
         self.verticalLayoutWidget_2 = QtWidgets.QWidget(self.h_splitter_layout)
         self.verticalLayoutWidget_2.setObjectName("verticalLayoutWidget_2")
 
         # 右边窗口的布局
         self.right_layout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_2)
-        self.right_layout.setSizeConstraint(QtWidgets.QLayout.SetNoConstraint)
+        self.right_layout.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
         self.right_layout.setContentsMargins(10, 6, 0, 0)
         self.right_layout.setObjectName("right_layout")
 
@@ -163,6 +165,7 @@ class Ui_MainWindow(object):
         self.coronal_path_toolButton.setObjectName("coronal_path_toolButton")
         self.coronal_layout.addWidget(self.coronal_path_toolButton)
         self.output_layout.addLayout(self.coronal_layout)
+
         # 水平面切片输出的布局
         self.axial_layout = QtWidgets.QHBoxLayout()
         self.axial_layout.setContentsMargins(-1, 8, -1, 8)
@@ -177,6 +180,7 @@ class Ui_MainWindow(object):
         self.axial_path_toolButton.setObjectName("axial_path_toolButton")
         self.axial_layout.addWidget(self.axial_path_toolButton)
         self.output_layout.addLayout(self.axial_layout)
+
         # 矢状面切片输出的布局
         self.sagittal_layout = QtWidgets.QHBoxLayout()
         self.sagittal_layout.setContentsMargins(-1, 8, -1, 8)
@@ -191,15 +195,35 @@ class Ui_MainWindow(object):
         self.sagittal_path_toolButton.setObjectName("sagittal_path_toolButton")
         self.sagittal_layout.addWidget(self.sagittal_path_toolButton)
         self.output_layout.addLayout(self.sagittal_layout)
+        # all direction layout
+        self.all_direction_layout = QtWidgets.QHBoxLayout()
+        self.all_direction_layout.setContentsMargins(-1, 8, -1, 8)
+        self.all_direction_layout.setObjectName("all_direction_layout")
+        self.all_direction_label = QtWidgets.QLabel(self.verticalLayoutWidget_2)
+        self.all_direction_label.setObjectName("all_direction_label")
+        self.all_direction_layout.addWidget(self.all_direction_label)
+        self.all_path_lineEdit = QtWidgets.QLineEdit(self.verticalLayoutWidget_2)
+        self.all_path_lineEdit.setObjectName("all_path_lineEdit")
+        self.all_direction_layout.addWidget(self.all_path_lineEdit)
+        self.all_path_toolButton = QtWidgets.QToolButton(self.verticalLayoutWidget_2)
+        self.all_path_toolButton.setObjectName("all_path_toolButton")
+        self.all_direction_layout.addWidget(self.all_path_toolButton)
+        self.output_layout.addLayout(self.all_direction_layout)
 
         # 切片方向选择的布局
         self.option_layout = QtWidgets.QHBoxLayout()
         self.option_layout.setContentsMargins(-1, 8, -1, 8)
         self.option_layout.setObjectName("option_layout")
+        self.slice_option_label = QtWidgets.QLabel(self.verticalLayoutWidget_2)
+        self.slice_option_label.setObjectName("slice_option_label")
+        self.option_layout.addWidget(self.slice_option_label)
         self.slice_option_comboBox = QtWidgets.QComboBox(self.verticalLayoutWidget_2)
+        # 设置字体
         font = QtGui.QFont()
         font.setFamily("Book Antiqua")
         font.setPointSize(11)
+        font.setStyleStrategy(QtGui.QFont.PreferAntialias)
+        # 选择切片方向
         self.slice_option_comboBox.setFont(font)
         self.slice_option_comboBox.setObjectName("slice_option_comboBox")
         self.slice_option_comboBox.addItem("")
@@ -207,21 +231,40 @@ class Ui_MainWindow(object):
         self.slice_option_comboBox.addItem("")
         self.slice_option_comboBox.addItem("")
         self.option_layout.addWidget(self.slice_option_comboBox)
-        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        # 切片是否旋转
+        self.rotate_label = QtWidgets.QLabel(self.verticalLayoutWidget_2)
+        self.rotate_label.setIndent(10)
+        self.rotate_label.setObjectName("rotate_label")
+        self.option_layout.addWidget(self.rotate_label)
+        self.rotate_comboBox = QtWidgets.QComboBox(self.verticalLayoutWidget_2)
+        self.rotate_comboBox.setObjectName("rotate_comboBox")
+        self.rotate_comboBox.addItem("")
+        self.rotate_comboBox.addItem("")
+        self.option_layout.addWidget(self.rotate_comboBox)
+        # 切片旋转角度
+        self.rotate_num_label = QtWidgets.QLabel(self.verticalLayoutWidget_2)
+        self.rotate_num_label.setIndent(10)
+        self.rotate_num_label.setObjectName("rotate_num_label")
+        self.option_layout.addWidget(self.rotate_num_label)
+        self.rotate_num_comboBox = QtWidgets.QComboBox(self.verticalLayoutWidget_2)
+        self.rotate_num_comboBox.setObjectName("rotate_num_comboBox")
+        self.rotate_num_comboBox.addItem("")
+        self.rotate_num_comboBox.addItem("")
+        self.rotate_num_comboBox.addItem("")
+        self.option_layout.addWidget(self.rotate_num_comboBox)
+        spacerItem1 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         self.option_layout.addItem(spacerItem1)
         # slice button
         self.slice_button = QtWidgets.QPushButton(self.verticalLayoutWidget_2)
         self.slice_button.setObjectName("slice_button")
         self.option_layout.addWidget(self.slice_button)
-        spacerItem2 = QtWidgets.QSpacerItem(194, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.option_layout.addItem(spacerItem2)
+        # spacerItem2 = QtWidgets.QSpacerItem(194, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        # self.option_layout.addItem(spacerItem2)
         self.output_layout.addLayout(self.option_layout)
-        spacerItem3 = QtWidgets.QSpacerItem(401, 34, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.output_layout.addItem(spacerItem3)
+        spacerItem2 = QtWidgets.QSpacerItem(401, 34, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.output_layout.addItem(spacerItem2)
         # 完成右边窗口的布局
         self.right_layout.addLayout(self.output_layout)
-
-
         self.verticalLayoutWidget_3 = QtWidgets.QWidget(self.mainwindow_layout)
         self.verticalLayoutWidget_3.setObjectName("verticalLayoutWidget_3")
 
@@ -308,34 +351,12 @@ class Ui_MainWindow(object):
         self.menu_themes.addAction(self.actionDark)
         self.menu_themes.addAction(self.actionLight)
 
-
         self.menubar.addAction(self.menu_file.menuAction())
         self.menubar.addAction(self.menu_themes.menuAction())
         self.menubar.addAction(self.menu_help.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-        """ 按钮对应的逻辑函数"""
-        # 点击open
-        self.action_open.triggered.connect(self.filename_lineEdit.clear)
-        # 点击open folder
-        self.action_open_Folder.triggered.connect(self.folder_path_lineEdit.clear)
-        # 点击coronal的输出文件夹
-        self.coronal_path_toolButton.clicked.connect(self.coronal_path_lineEdit.clear)
-        # 点击axial的输出文件夹
-        self.axial_path_toolButton.clicked['bool'].connect(self.axial_path_lineEdit.clear)
-        # 点击sagittal的输出文件夹
-        self.sagittal_path_toolButton.clicked.connect(self.sagittal_path_lineEdit.clear)
-        # 点击slice button后，更新进度条
-        self.slice_button.clicked.connect(self.process_progressBar.reset)
-        # 点击slice button后，更新log
-        # self.slice_button.clicked.connect(self.log_textEdit)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-    """ 逻辑处理函数 """
-    def select_filename_text(self):
-        pass
 
     # 设置窗口组件信息
     def retranslateUi(self, MainWindow):
@@ -352,10 +373,20 @@ class Ui_MainWindow(object):
         self.axial_path_toolButton.setText(_translate("MainWindow", "..."))
         self.sagittal_label.setText(_translate("MainWindow", "sagittal"))
         self.sagittal_path_toolButton.setText(_translate("MainWindow", "..."))
-        self.slice_option_comboBox.setItemText(0, _translate("MainWindow", "coronal "))
-        self.slice_option_comboBox.setItemText(1, _translate("MainWindow", "axial   "))
+        self.all_direction_label.setText(_translate("MainWindow", "all"))
+        self.all_path_toolButton.setText(_translate("MainWindow", "..."))
+        self.slice_option_label.setText(_translate("MainWindow", "direction"))
+        self.slice_option_comboBox.setItemText(1, _translate("MainWindow", "axial"))
+        self.slice_option_comboBox.setItemText(0, _translate("MainWindow", "coronal"))
         self.slice_option_comboBox.setItemText(2, _translate("MainWindow", "sagittal"))
         self.slice_option_comboBox.setItemText(3, _translate("MainWindow", "all"))
+        self.rotate_label.setText(_translate("MainWindow", "rotate"))
+        self.rotate_comboBox.setItemText(0, _translate("MainWindow", "Yes"))
+        self.rotate_comboBox.setItemText(1, _translate("MainWindow", "No"))
+        self.rotate_num_label.setText(_translate("MainWindow", "rotate_num"))
+        self.rotate_num_comboBox.setItemText(0, _translate("MainWindow", "90"))
+        self.rotate_num_comboBox.setItemText(1, _translate("MainWindow", "180"))
+        self.rotate_num_comboBox.setItemText(2, _translate("MainWindow", "270"))
         self.slice_button.setText(_translate("MainWindow", "slice"))
         self.menu_file.setTitle(_translate("MainWindow", "File"))
         self.menu_help.setTitle(_translate("MainWindow", "Help"))
@@ -366,8 +397,6 @@ class Ui_MainWindow(object):
         self.action_about.setText(_translate("MainWindow", "About"))
         self.actionDark.setText(_translate("MainWindow", "Dark"))
         self.actionLight.setText(_translate("MainWindow", "Light"))
-
-
 
 
 if __name__ == "__main__":
