@@ -19,21 +19,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__(parent)
         self.setupUi(self)
         self.cwd = os.getcwd()
-        self.input_file = ''
-        self.input_folder = ''
+        self.input_nii_file = ''
+        self.input_dicom_file = ''
+        self.input_nii_folder = ''
+        self.input_dicom_folder = ''
         self.output_path = {'coronal': 'D:/', 'axial': 'D:/', 'sagittal': 'D:/', 'all': 'D:/'}  # 输出文件的路径列表
-        self.output_folder = ''
+        self.output_nii_folder = ''
+        self.output_dicom_folder = ''
         self.direction = 'axial'
         self.rotate = 'Yes'
         self.rotate_num = 90
+        self.dataset = 'ADNI'
         self.update_progressBar_thread = None
         self.update_log_thread = None
 
         """ 按钮对应的逻辑函数"""
-        # 点击open
-        self.action_open.triggered.connect(self.open_file)
-        # 点击open folder
-        self.action_open_Folder.triggered.connect(self.open_folder)
+        # 点击open nii file
+        self.action_nii_file.triggered.connect(self.open_nii_file)
+        # 点击open dicom file
+        # self.action_dicom_file.triggered.connect(self.open_file)
+        # 点击open nii folder
+        self.action_nii_folder.triggered.connect(self.open_nii_folder)
+        # 点击open dicom folder
+        # self.action_dicom_folder.triggered.connect(self.open_folder)
         # 点击coronal的输出文件夹
         self.coronal_path_toolButton.clicked.connect(self.set_coronal_path)
         # 点击axial的输出文件夹
@@ -45,7 +53,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # 点击slice button后，更新进度条
         self.slice_button.clicked.connect(self.do_slice)
         # 选择切片方向
-        self.slice_option_comboBox.activated[str].connect(self.select_slice_direction)
+        self.direction_comboBox.activated[str].connect(self.select_slice_direction)
         # 选择是否旋转图像
         self.rotate_comboBox.activated[str].connect(self.select_rotate)
         # 选择旋转的角度
@@ -56,30 +64,45 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                % (self.input_file, self.input_folder, self.output_path, self.direction, self.rotate, self.rotate_num)
 
     # option---open---打开单个nii文件
-    def open_file(self):
+    def open_nii_file(self):
         file_name, file_type = QFileDialog.getOpenFileName(self, caption='Open a nii file',
                                                            directory=self.cwd, filter="nii files (*.nii)")
-        self.input_file = file_name
-        self.filename_lineEdit.setText(file_name)
+        self.input_nii_file = file_name
+        self.nii_folder_lineEdit.clear()
+        self.input_nii_folder = ''
+        self.nii_file_lineEdit.setText(file_name)
+
+    # 打开一个dicom文件
+    def open_dicom_file(self):
+        file_name, file_type = QFileDialog.getOpenFileName(self, caption='Open a nii file',
+                                                           directory=self.cwd, filter="dicom files (*.dcm)")
 
     # option---open folder---打开一个文件夹
-    def open_folder(self):
+    def open_nii_folder(self):
         file_dir = QFileDialog.getExistingDirectory(self, caption='open a directory',
                                                     directory='D:/')
-        self.input_folder = file_dir
-        self.folder_path_lineEdit.setText(file_dir)
+        self.input_nii_folder = file_dir
+        self.nii_folder_lineEdit.setText(file_dir)
+        self.nii_file_lineEdit.clear()
+        self.input_nii_file = ''
 
     # 设置冠状切片的输出路径
     def set_coronal_path(self):
         dir = QFileDialog.getExistingDirectory(self, 'set coronal slice output path', directory='D:/')
         self.output_path['coronal'] = dir
         self.coronal_path_lineEdit.setText(dir)
+        self.axial_path_lineEdit.clear()
+        self.sagittal_path_lineEdit.clear()
+        self.all_path_lineEdit.clear()
 
     # 设置水平切片的输出路径
     def set_axial_path(self):
         dir = QFileDialog.getExistingDirectory(self, 'set axial slice output path', directory='D:/')
         self.output_path['axial'] = dir
         self.axial_path_lineEdit.setText(dir)
+        self.coronal_path_lineEdit.clear()
+        self.sagittal_path_lineEdit.clear()
+        self.all_path_lineEdit.clear()
 
     # 设置矢状切片的输出路径
     def set_sagittal_path(self):
@@ -87,6 +110,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.output_path['sagittal'] = dir
         print(self.output_path)
         self.sagittal_path_lineEdit.setText(dir)
+        self.axial_path_lineEdit.clear()
+        self.coronal_path_lineEdit.clear()
+        self.all_path_lineEdit.clear()
 
     # 设置all方向的输出路径
     def set_all_path(self):
@@ -94,6 +120,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.output_folder = dir
         print(dir)
         self.all_path_lineEdit.setText(dir)
+        self.axial_path_lineEdit.clear()
+        self.coronal_path_lineEdit.clear()
+        self.sagittal_path_lineEdit.clear()
 
     # 选择切片方向
     def select_slice_direction(self, direction):
@@ -110,6 +139,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.rotate_num = int(self.rotate_num_comboBox.currentText())
         print(type(self.rotate_num), self.rotate_num)
 
+    # 选择数据集
+    def select_dataset(self):
+        self.dataset = self.dataset_comboBox.currentText()
+        print(self.dataset)
+
     # 启动切片---切片的主要逻辑
     def do_slice(self):
         # slice_thread_test = SliceThread(self.input_file, self.output_path[self.direction], self.direction,
@@ -118,12 +152,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # slice_thread_test.finish_signal.connect(self.get_msg)
         self.log_textEdit.clear()
         self.update_log_thread = UpdateLogThread()
-        self.update_progressBar_thread = UpdateProgressBarThread(input_file=self.input_file,
-                                                                 input_folder=self.input_folder,
+        self.update_progressBar_thread = UpdateProgressBarThread(input_file=self.input_nii_file,
+                                                                 input_folder=self.input_nii_folder,
                                                                  output_path=self.output_path[self.direction],
                                                                  output_folder=self.output_folder,
-                                                                 direction=self.direction, rotate=self.rotate,
+                                                                 direction=self.direction,
+                                                                 rotate=self.rotate,
                                                                  rotate_num=self.rotate_num,
+                                                                 dataset=self.dataset,
                                                                  update_log_thread=self.update_log_thread)
         self.update_progressBar_thread.start()
 

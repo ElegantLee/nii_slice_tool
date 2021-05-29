@@ -21,7 +21,7 @@ class UpdateProgressBarThread(QThread):
     update_progress_signal = pyqtSignal(int, name='UpdateProgressBar')
     finish_signal = pyqtSignal(bool, name='is finished slicing signal')
 
-    def __init__(self, input_file, input_folder, output_path, output_folder, direction, rotate, rotate_num, update_log_thread):
+    def __init__(self, input_file, input_folder, output_path, output_folder, direction, rotate, rotate_num, dataset, update_log_thread):
         super(UpdateProgressBarThread, self).__init__()
         print('update progressBar thread...')
         self.input_file = input_file
@@ -36,10 +36,12 @@ class UpdateProgressBarThread(QThread):
         self.counter = 0
 
     def run(self):
-        if self.direction != 'all':
+        if self.input_file != '' and self.input_folder == '' and self.direction != 'all':
             self.nii2png_one_direction()
-        else:
+        elif self.input_file != '' and self.input_folder == '' and self.direction == 'all':
             self.nii2png_all_direction()
+        elif self.input_file == '' and self.input_folder != '' and self.direction == 'all':
+            self.nii2png_all_direction_folder()
         # self.finish_signal.emit('update success')
         return
 
@@ -228,7 +230,7 @@ class UpdateProgressBarThread(QThread):
         self.update_log_thread.update_log_signal.emit('Output folder is ' + self.output_folder)
         self.update_log_thread.update_log_signal.emit('output axial folder is ' + output_path_axial)
         self.update_log_thread.update_log_signal.emit('output coronal folder is ' + output_path_coronal)
-        self.update_log_thread.update_log_signal.emit('output sagittal folder is '+ output_path_sagittal)
+        self.update_log_thread.update_log_signal.emit('output sagittal folder is ' + output_path_sagittal)
         # set fn as your 4d nifti file
         image_array = nibabel.load(self.input_file).get_data()
         print(len(image_array.shape))
@@ -348,3 +350,124 @@ class UpdateProgressBarThread(QThread):
             self.update_log_thread.update_log_signal.emit('Not a 3D or 4D Image. Please try again.')
             result = False
         return result
+
+    def nii2png_all_direction_folder(self):
+
+        print(os.getcwd())
+        self.update_log_thread.update_log_signal.emit('当前工作目录: ' + os.getcwd())
+        nii_files = os.listdir(self.input_folder)
+        os.chdir(self.input_folder)
+
+        for nii_file in nii_files:
+            # 拼接nii文件的绝对路径
+            nii_file_path = Path(os.path.join(self.input_folder, nii_file)).as_posix()
+            print(nii_file_path)
+            self.update_log_thread.update_log_signal.emit('nii file path: ' + nii_file_path)
+            # 图片存放位置
+            png_dir_name = os.path.splitext(nii_file)[0]
+            print(png_dir_name)
+            png_dir = Path(os.path.join(self.input_folder, png_dir_name)).as_posix()
+            self.update_log_thread.update_log_signal.emit('png dir: ' + png_dir)
+            output_path_axial = Path(os.path.join(png_dir, 'axial')).as_posix()
+            output_path_coronal = Path(os.path.join(png_dir, 'coronal')).as_posix()
+            output_path_sagittal = Path(os.path.join(png_dir, 'sagittal')).as_posix()
+            self.update_log_thread.update_log_signal.emit('Input file is ' + self.input_file)
+            self.update_log_thread.update_log_signal.emit('Output folder is ' + self.output_folder)
+            self.update_log_thread.update_log_signal.emit('output axial folder is ' + output_path_axial)
+            self.update_log_thread.update_log_signal.emit('output coronal folder is ' + output_path_coronal)
+            self.update_log_thread.update_log_signal.emit('output sagittal folder is ' + output_path_sagittal)
+
+            # 创建png的存储目录
+            if not os.path.exists(png_dir):
+                os.makedirs(png_dir)
+                print("Created output directory: " + png_dir)
+                self.update_log_thread.update_log_signal.emit("Created output directory: " + png_dir)
+
+            # 创建子文件夹
+            if not os.path.exists(output_path_axial):
+                os.makedirs(output_path_axial)
+                self.update_log_thread.update_log_signal.emit('create output axial folder: ' + output_path_axial)
+            if not os.path.exists(output_path_coronal):
+                os.makedirs(output_path_coronal)
+                self.update_log_thread.update_log_signal.emit('create output coronal folder: ' + output_path_coronal)
+            if not os.path.exists(output_path_sagittal):
+                os.mkdir(output_path_sagittal)
+                self.update_log_thread.update_log_signal.emit('create output sagittal folder: ' + output_path_sagittal)
+
+            # 读取nii文件
+            print('Reading NIfTI file...')
+            self.update_log_thread.update_log_signal.emit('Reading NIfTI file...')
+            image_array = nibabel.load(nii_file_path).get_data()
+            # else if 3D image inputted
+            if len(image_array.shape) == 3:
+                # set 4d array dimension values
+                nx, ny, nz = image_array.shape
+                total_slices = nz
+                data_all = {}
+                # image_array[coronal, axial, Sagittal]  [冠状面，水平面，矢状面]
+                slice_counter = 0
+                # 映射切片进度
+                y_max = 100
+                y_min = 1
+                x_max = total_slices
+                x_min = 1
+                progress_counter = 0
+                # iterate through slices
+                for current_slice in range(0, total_slices):
+                    # alternate slices
+                    if (slice_counter % 1) == 0:
+                        # rotate or no rotate
+                        if self.rotate.lower() == 'yes':
+                            if self.rotate_num == 90 or self.rotate_num == 180 or self.rotate_num == 270:
+                                if self.rotate_num == 90:
+                                    data_axial = numpy.rot90(image_array[:, :, current_slice])
+                                    data_coronal = numpy.rot90(image_array[:, current_slice, :])
+                                    data_sagittal = numpy.rot90(image_array[current_slice, :, :])
+                                elif self.rotate_num == 180:
+                                    data_axial = numpy.rot90(numpy.rot90(image_array[:, :, current_slice]))
+                                    data_coronal = numpy.rot90(numpy.rot90(image_array[:, current_slice, :]))
+                                    data_sagittal = numpy.rot90(numpy.rot90(image_array[current_slice, :, :]))
+                                elif self.rotate_num == 270:
+                                    data_axial = numpy.rot90(numpy.rot90(numpy.rot90(image_array[:, :, current_slice])))
+                                    data_coronal = numpy.rot90(
+                                        numpy.rot90(numpy.rot90(image_array[:, current_slice, :])))
+                                    data_sagittal = numpy.rot90(
+                                        numpy.rot90(numpy.rot90(image_array[current_slice, :, :])))
+                        elif self.rotate.lower() == 'no':
+                            data_axial = image_array[:, :, current_slice]
+                            data_coronal = image_array[:, current_slice, :]
+                            data_sagittal = image_array[current_slice, :, :]
+
+                        data_all['axial'] = data_axial
+                        data_all['coronal'] = data_coronal
+                        data_all['sagittal'] = data_sagittal
+                        # alternate slices and save as png
+                        print('Start slicing...')
+                        self.update_log_thread.update_log_signal.emit('Start slicing...')
+                        # alternate slices and save as png
+                        if (slice_counter % 1) == 0:
+                            for direction, data in data_all.items():
+                                print('Saving image...')
+                                self.update_log_thread.update_log_signal.emit('Saving image...')
+                                image_name = png_dir + "_" + direction + "{:0>3}".format(
+                                    str(current_slice + 1)) + ".png"
+                                self.update_log_thread.update_log_signal.emit('image name: ' + image_name)
+                                imageio.imwrite(image_name, data)
+                                print('Saved.')
+                                self.update_log_thread.update_log_signal.emit('Saved.')
+                                # move images to folder
+                                print('Moving image...')
+                                self.update_log_thread.update_log_signal.emit('Moving image...')
+                                src = image_name
+                                shutil.move(src, Path(os.path.join(png_dir_name, direction)).as_posix())
+                                slice_counter += 1
+                                print('Moved.')
+                                self.update_log_thread.update_log_signal.emit('Moved.')
+
+                        progress_counter = y_min + math.ceil((y_max - y_min) / (x_max - x_min) * (current_slice - x_min))
+                        self.update_progress_signal.emit(progress_counter)
+                print('Finished converting images')
+                self.update_log_thread.update_log_signal.emit('Finished converting images')
+            else:
+                print('Not a 3D or 4D Image. Please try again.')
+                self.update_log_thread.update_log_signal.emit('Not a 3D or 4D Image. Please try again.')
