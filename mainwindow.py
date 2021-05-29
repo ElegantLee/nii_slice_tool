@@ -37,11 +37,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # 点击open nii file
         self.action_nii_file.triggered.connect(self.open_nii_file)
         # 点击open dicom file
-        # self.action_dicom_file.triggered.connect(self.open_file)
+        self.action_dicom_file.triggered.connect(self.open_dicom_file)
         # 点击open nii folder
         self.action_nii_folder.triggered.connect(self.open_nii_folder)
         # 点击open dicom folder
-        # self.action_dicom_folder.triggered.connect(self.open_folder)
+        self.action_dicom_folder.triggered.connect(self.open_dicom_folder)
         # 点击coronal的输出文件夹
         self.coronal_path_toolButton.clicked.connect(self.set_coronal_path)
         # 点击axial的输出文件夹
@@ -76,15 +76,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def open_dicom_file(self):
         file_name, file_type = QFileDialog.getOpenFileName(self, caption='Open a nii file',
                                                            directory=self.cwd, filter="dicom files (*.dcm)")
+        self.input_dicom_file = file_name
+        self.dicom_folder_lineEdit.clear()
+        self.input_dicom_folder = ''
+        self.dicom_file_lineEdit.setText(file_name)
 
-    # option---open folder---打开一个文件夹
+    # option---open folder---打开一个nii文件夹
     def open_nii_folder(self):
-        file_dir = QFileDialog.getExistingDirectory(self, caption='open a directory',
+        file_dir = QFileDialog.getExistingDirectory(self, caption='open a nii directory',
                                                     directory='D:/')
         self.input_nii_folder = file_dir
         self.nii_folder_lineEdit.setText(file_dir)
         self.nii_file_lineEdit.clear()
         self.input_nii_file = ''
+
+    # 打开一个dicom文件夹
+    def open_dicom_folder(self):
+        file_dir = QFileDialog.getExistingDirectory(self, caption='open a dicom directory',
+                                                    directory='D:/')
+        self.input_dicom_folder = file_dir
+        self.dicom_folder_lineEdit.setText(file_dir)
+        self.dicom_file_lineEdit.clear()
+        self.input_dicom_file = ''
 
     # 设置冠状切片的输出路径
     def set_coronal_path(self):
