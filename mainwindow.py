@@ -20,9 +20,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.cwd = os.getcwd()
         self.input_nii_file = ''
-        self.input_dicom_file = ''
+        self.input_dicom_file = []
         self.input_nii_folder = ''
-        self.input_dicom_folder = ''
+        self.input_dicom_folder = []
         self.output_path = {'coronal': 'D:/', 'axial': 'D:/', 'sagittal': 'D:/', 'all': 'D:/'}  # 输出文件的路径列表
         self.output_nii_folder = ''
         self.output_dicom_folder = ''
@@ -50,14 +50,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.sagittal_path_toolButton.clicked.connect(self.set_sagittal_path)
         # 点击all的输出文件夹
         self.all_path_toolButton.clicked.connect(self.set_all_path)
-        # 点击slice button后，更新进度条
-        self.slice_button.clicked.connect(self.do_slice)
         # 选择切片方向
         self.direction_comboBox.activated[str].connect(self.select_slice_direction)
         # 选择是否旋转图像
         self.rotate_comboBox.activated[str].connect(self.select_rotate)
         # 选择旋转的角度
         self.rotate_num_comboBox.currentIndexChanged.connect(self.select_rotate_num)
+        # 点击slice button后，更新进度条和日志
+        self.slice_button.clicked.connect(self.do_slice)
+        # 点击convert button
+        self.convert_pushButton.clicked.connect(self.do_convert)
 
     def __str__(self):
         return "input_file:%s\ninput_folder:%s\noutput_path:%s\ndirection:%s\nrotate:%s\nrotate_num:%d\n" \
@@ -74,11 +76,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     # 打开一个dicom文件
     def open_dicom_file(self):
-        file_name, file_type = QFileDialog.getOpenFileName(self, caption='Open a nii file',
+        file_name, file_type = QFileDialog.getOpenFileName(self, caption='Open a dicom file',
                                                            directory=self.cwd, filter="dicom files (*.dcm)")
-        self.input_dicom_file = file_name
+        self.input_dicom_file.append(file_name)
         self.dicom_folder_lineEdit.clear()
-        self.input_dicom_folder = ''
+        self.input_dicom_folder = []
         self.dicom_file_lineEdit.setText(file_name)
 
     # option---open folder---打开一个nii文件夹
@@ -94,10 +96,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def open_dicom_folder(self):
         file_dir = QFileDialog.getExistingDirectory(self, caption='open a dicom directory',
                                                     directory='D:/')
-        self.input_dicom_folder = file_dir
+        self.input_dicom_folder.append(file_dir)
         self.dicom_folder_lineEdit.setText(file_dir)
         self.dicom_file_lineEdit.clear()
-        self.input_dicom_file = ''
+        self.input_dicom_file = []
 
     # 设置冠状切片的输出路径
     def set_coronal_path(self):
@@ -130,7 +132,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     # 设置all方向的输出路径
     def set_all_path(self):
         dir = QFileDialog.getExistingDirectory(self, 'set all direction slice output path', directory='D:/')
-        self.output_folder = dir
+        self.output_nii_folder = dir
         print(dir)
         self.all_path_lineEdit.setText(dir)
         self.axial_path_lineEdit.clear()
@@ -168,16 +170,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.update_progressBar_thread = UpdateProgressBarThread(input_file=self.input_nii_file,
                                                                  input_folder=self.input_nii_folder,
                                                                  output_path=self.output_path[self.direction],
-                                                                 output_folder=self.output_folder,
+                                                                 output_folder=self.output_nii_folder,
                                                                  direction=self.direction,
                                                                  rotate=self.rotate,
                                                                  rotate_num=self.rotate_num,
                                                                  dataset=self.dataset,
                                                                  update_log_thread=self.update_log_thread)
         self.update_progressBar_thread.start()
-
         self.update_progressBar_thread.update_progress_signal.connect(self.update_progressBar)
         self.update_log_thread.update_log_signal.connect(self.update_log)
+
+    def do_convert(self):
+
+        pass
 
     def update_log(self, msg):
         self.log_textEdit.append(msg)

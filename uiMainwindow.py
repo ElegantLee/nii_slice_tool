@@ -82,6 +82,8 @@ class Ui_MainWindow(object):
         self.h_splitter_layout.setObjectName("h_splitter_layout")
         self.verticalLayoutWidget = QtWidgets.QWidget(self.h_splitter_layout)
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
+        self.verticalLayoutWidget_2 = QtWidgets.QWidget(self.h_splitter_layout)
+        self.verticalLayoutWidget_2.setObjectName("verticalLayoutWidget_2")
 
         # 左边窗口的布局
         # self.left_layout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
@@ -149,28 +151,32 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.nii_folder_lineEdit)
         self.left_layout.addWidget(self.nii2png_groupBox)
 
+        # dicom2nii_groupBox
         self.dicom2nii_groupBox = QtWidgets.QGroupBox(self.verticalLayoutWidget)
         self.dicom2nii_groupBox.setObjectName("dicom2nii_groupBox")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.dicom2nii_groupBox)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
+        self.left_layout.addWidget(self.dicom2nii_groupBox)
+        # dicom_file_label
         self.dicom_file_label = QtWidgets.QLabel(self.dicom2nii_groupBox)
         self.dicom_file_label.setObjectName("dicom_file_label")
         self.verticalLayout_5.addWidget(self.dicom_file_label)
-        self.verticalLayout_5.addWidget(self.dicom_file_label)
+        # dicom_file_lineEdit
         self.dicom_file_lineEdit = QtWidgets.QLineEdit(self.dicom2nii_groupBox)
         self.dicom_file_lineEdit.setReadOnly(True)
         self.dicom_file_lineEdit.setObjectName("dicom_file_lineEdit")
         self.verticalLayout_5.addWidget(self.dicom_file_lineEdit)
+        # dicom_folder_label
+        self.dicom_folder_label = QtWidgets.QLabel(self.dicom2nii_groupBox)
+        self.dicom_folder_label.setObjectName("dicom_folder_label")
+        self.verticalLayout_5.addWidget(self.dicom_folder_label)
+        # dicom_folder_lineEdit
         self.dicom_folder_lineEdit = QtWidgets.QLineEdit(self.dicom2nii_groupBox)
         self.dicom_folder_lineEdit.setObjectName("dicom_folder_lineEdit")
         self.verticalLayout_5.addWidget(self.dicom_folder_lineEdit)
-        self.dicom_folder_label = QtWidgets.QLabel(self.dicom2nii_groupBox)
-        self.dicom_folder_label.setObjectName("dicom_folder_label")
+        # spacer
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_5.addItem(spacerItem)
-        self.left_layout.addWidget(self.dicom2nii_groupBox)
-        self.verticalLayoutWidget_2 = QtWidgets.QWidget(self.h_splitter_layout)
-        self.verticalLayoutWidget_2.setObjectName("verticalLayoutWidget_2")
 
 
         # # 选择输入的文件夹
@@ -228,6 +234,7 @@ class Ui_MainWindow(object):
         self.coronal_layout.setContentsMargins(-1, 8, -1, 8)
         self.coronal_layout.setObjectName("coronal_layout")
         self.coronal_label = QtWidgets.QLabel(self.nii2png_groupBox_right)
+        self.coronal_label.setAlignment(QtCore.Qt.AlignCenter)
         self.coronal_label.setObjectName("coronal_label")
         self.coronal_layout.addWidget(self.coronal_label)
         self.coronal_path_lineEdit = QtWidgets.QLineEdit(self.nii2png_groupBox_right)
@@ -440,9 +447,9 @@ class Ui_MainWindow(object):
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.slice_hLayout.addItem(spacerItem2)
         self.verticalLayout_6.addLayout(self.slice_hLayout)
+        self.output_layout.addWidget(self.nii2png_groupBox_right)
 
-        # dicom2nii
-        self.dicom2nii_comboBox_right = QtWidgets.QGroupBox(self.nii2png_groupBox_right)
+        self.dicom2nii_comboBox_right = QtWidgets.QGroupBox(self.verticalLayoutWidget_2)
         self.dicom2nii_comboBox_right.setObjectName("dicom2nii_comboBox_right")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.dicom2nii_comboBox_right)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
@@ -458,8 +465,12 @@ class Ui_MainWindow(object):
         self.convert_pushButton = QtWidgets.QPushButton(self.dicom2nii_comboBox_right)
         self.convert_pushButton.setObjectName("convert_pushButton")
         self.horizontalLayout_2.addWidget(self.convert_pushButton)
-        self.verticalLayout_6.addWidget(self.dicom2nii_comboBox_right)
-        self.output_layout.addWidget(self.nii2png_groupBox_right)
+        self.output_layout.addWidget(self.dicom2nii_comboBox_right)
+        # self.output_layout.addWidget(self.nii2png_groupBox_right)
+        # self.output_layout.addWidget(self.nii2png_groupBox_right)
+        spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.output_layout.addItem(spacerItem3)
+        self.right_layout.addLayout(self.output_layout)
         self.output_path_line = QtWidgets.QFrame(self.verticalLayoutWidget_2)
         self.output_path_line.setFrameShape(QtWidgets.QFrame.HLine)
         self.output_path_line.setFrameShadow(QtWidgets.QFrame.Sunken)
