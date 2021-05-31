@@ -360,6 +360,15 @@ class UpdateProgressBarThread(QThread):
             result = False
         return result
 
+    def nii2png_ADNI(self):
+        pass
+
+    def nii2png_IXI(self):
+        pass
+
+    def nii2png_OASIS(self):
+        pass
+
     def nii2png_all_direction_folder(self):
         # print('direction: ' + self.direction)
         self.update_log_thread.update_log_signal.emit('direction: ' + self.direction)
@@ -525,10 +534,24 @@ class UpdateProgressBarThread(QThread):
                                                     data_sagittal = numpy.rot90(
                                                         numpy.rot90(numpy.rot90(image_array[current_slice, :, :])))
                                         elif self.rotate.lower() == 'no':
-                                            data_coronal = numpy.rot90(numpy.rot90(image_array[current_slice, :, :]))
-                                            data_axial = numpy.rot90(numpy.rot90(image_array[:, current_slice, :]))
-                                            if current_slice < nz:
-                                                data_sagittal = numpy.rot90(image_array[:, :, current_slice])
+                                            if self.dataset == 'ADNI':
+                                                pass
+                                            elif self.dataset == 'IXI':
+                                                # IXI
+                                                data_coronal = numpy.rot90(numpy.rot90(image_array[current_slice, :, :]))
+                                                data_axial = numpy.rot90(numpy.rot90(image_array[:, current_slice, :]))
+                                                if current_slice < nz:
+                                                    data_sagittal = numpy.rot90(image_array[:, :, current_slice])
+                                            elif self.dataset == 'OASIS':
+                                                pass
+                                            else:
+                                                pass
+
+                                            # IXI
+                                            # data_coronal = numpy.rot90(numpy.rot90(image_array[current_slice, :, :]))
+                                            # data_axial = numpy.rot90(numpy.rot90(image_array[:, current_slice, :]))
+                                            # if current_slice < nz:
+                                            #     data_sagittal = numpy.rot90(image_array[:, :, current_slice])
 
                                         data_all['axial'] = data_axial
                                         data_all['coronal'] = data_coronal
