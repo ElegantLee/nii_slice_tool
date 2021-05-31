@@ -11,7 +11,7 @@ from PyQt5.QtGui import QTextCursor
 from uiMainwindow import Ui_MainWindow
 from updateProgressBarThread import UpdateProgressBarThread
 from updateLogThread import UpdateLogThread
-
+from dicom2niiThread import Dicom2Nii
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 
@@ -22,7 +22,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.input_nii_file = ''
         self.input_dicom_file = []
         self.input_nii_folder = ''
-        self.input_dicom_folder = []
+        self.input_dicom_folder = ''
         self.output_path = {'coronal': 'D:/', 'axial': 'D:/', 'sagittal': 'D:/', 'all': 'D:/'}  # 输出文件的路径列表
         self.output_nii_folder = ''
         self.output_dicom_folder = ''
@@ -32,6 +32,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.dataset = 'ADNI'
         self.update_progressBar_thread = None
         self.update_log_thread = None
+        self.dicom2nii_thread = None
 
         """ 按钮对应的逻辑函数"""
         # 点击open nii file
@@ -56,6 +57,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.rotate_comboBox.activated[str].connect(self.select_rotate)
         # 选择旋转的角度
         self.rotate_num_comboBox.currentIndexChanged.connect(self.select_rotate_num)
+        # 选择数据集
+        self.dataset_comboBox.currentIndexChanged.connect(self.select_dataset)
         # 点击slice button后，更新进度条和日志
         self.slice_button.clicked.connect(self.do_slice)
         # 点击convert button
@@ -96,10 +99,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def open_dicom_folder(self):
         file_dir = QFileDialog.getExistingDirectory(self, caption='open a dicom directory',
                                                     directory='D:/')
-        self.input_dicom_folder.append(file_dir)
+        self.input_dicom_folder = file_dir
         self.dicom_folder_lineEdit.setText(file_dir)
-        self.dicom_file_lineEdit.clear()
-        self.input_dicom_file = []
+        # self.dicom_file_lineEdit.clear()
+        # self.input_dicom_file = []
 
     # 设置冠状切片的输出路径
     def set_coronal_path(self):
@@ -181,8 +184,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.update_log_thread.update_log_signal.connect(self.update_log)
 
     def do_convert(self):
-
-        pass
+        self.log_textEdit.clear()
+        self.dicom2nii_thread = Dicom2Nii(self.input_dicom_folder, self.output_dicom_folder)
+        self.dicom2nii_thread.start()
+        self.dicom2nii_thread.dicom2nii_signal.connect(self.update_log)
 
     def update_log(self, msg):
         self.log_textEdit.append(msg)
