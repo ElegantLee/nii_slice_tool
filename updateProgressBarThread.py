@@ -373,7 +373,7 @@ class UpdateProgressBarThread(QThread):
         # self.update_log_thread.update_log_signal.emit('当前工作目录: ' + os.getcwd())
         # nii_files = os.listdir(self.input_folder)
         os.chdir(self.input_folder)
-        self._mutex.lock()
+        # self._mutex.lock()
         for root, dirs, files in os.walk(self.input_folder):
             root = Path(root).as_posix()
             if len(files) != 0:
@@ -382,11 +382,11 @@ class UpdateProgressBarThread(QThread):
                     if os.path.splitext(file)[1] == '.nii':
                             # 拼接nii文件的绝对路径
                             nii_file_path = Path(os.path.join(root, file)).as_posix()
-                            # print(nii_file_path)
+                            print(nii_file_path)
                             self.update_log_thread.update_log_signal.emit('nii file path: ' + nii_file_path)
                             # 图片存放位置
                             png_dir_name = file_name
-                            # print(png_dir_name)
+                            print(png_dir_name)
                             png_dir = Path(os.path.join(root, png_dir_name)).as_posix()
                             self.update_log_thread.update_log_signal.emit('png dir: ' + png_dir)
                             output_path_axial = Path(os.path.join(png_dir, 'axial')).as_posix()
@@ -401,7 +401,7 @@ class UpdateProgressBarThread(QThread):
                             # 创建png的存储目录
                             if not os.path.exists(png_dir):
                                 os.makedirs(png_dir)
-                                # print("Created output directory: " + png_dir)
+                                print("Created output directory: " + png_dir)
                                 self.update_log_thread.update_log_signal.emit("Created output directory: " + png_dir)
 
                             # 创建子文件夹
@@ -416,14 +416,14 @@ class UpdateProgressBarThread(QThread):
                                 self.update_log_thread.update_log_signal.emit('create output sagittal folder: ' + output_path_sagittal)
 
                             # 读取nii文件
-                            # print('Reading NIfTI file...')
+                            print('Reading NIfTI file...')
                             self.update_log_thread.update_log_signal.emit('Reading NIfTI file...')
                             image_array = nibabel.load(nii_file_path).get_data()
                             # else if 3D image inputted
                             if len(image_array.shape) == 3:
                                 # set 4d array dimension values
                                 nx, ny, nz = image_array.shape
-                                nz = 10
+                                # nz = 10
                                 total_slices = max(nx, ny, nz)
                                 # total_slices = 3
                                 data_all = {}
@@ -527,14 +527,14 @@ class UpdateProgressBarThread(QThread):
                                         elif self.rotate.lower() == 'no':
                                             data_coronal = numpy.rot90(numpy.rot90(image_array[current_slice, :, :]))
                                             data_axial = numpy.rot90(numpy.rot90(image_array[:, current_slice, :]))
-                                            if current_slice <= nz:
+                                            if current_slice < nz:
                                                 data_sagittal = numpy.rot90(image_array[:, :, current_slice])
 
                                         data_all['axial'] = data_axial
                                         data_all['coronal'] = data_coronal
                                         data_all['sagittal'] = data_sagittal
                                         # alternate slices and save as png
-                                        # print('Start slicing...')
+                                        print('Start slicing...')
                                         self.update_log_thread.update_log_signal.emit('Start slicing...')
                                         # alternate slices and save as png
                                         if (slice_counter % 1) == 0:
@@ -549,32 +549,32 @@ class UpdateProgressBarThread(QThread):
                                                     self.update_log_thread.update_log_signal.emit(
                                                         'image name: ' + image_name)
                                                     imageio.imwrite(image_name, data)
-                                                    # print('Saved.')
+                                                    print('Saved.')
                                                     self.update_log_thread.update_log_signal.emit('Saved.')
                                                     # move images to folder
-                                                    # print('Moving image...')
+                                                    print('Moving image...')
                                                     self.update_log_thread.update_log_signal.emit('Moving image...')
                                                     src = image_name
                                                     shutil.move(src, Path(os.path.join(png_dir, direction)).as_posix())
                                                     slice_counter += 1
-                                                    # print('Moved.')
+                                                    print('Moved.')
                                                     self.update_log_thread.update_log_signal.emit('Moved.')
 
                                         progress_counter = y_min + math.ceil(
                                             (y_max - y_min) / (x_max - x_min) * (current_slice - x_min))
                                         self.update_progress_signal.emit(progress_counter)
-                                # print('Finished converting images')
+                                print('Finished converting images')
                                 self.update_log_thread.update_log_signal.emit('Finished converting images')
                             else:
                                 # print('Not a 3D or 4D Image. Please try again.')
                                 self.update_log_thread.update_log_signal.emit('Not a 3D or 4D Image. Please try again.')
 
             else:
-                # print('looking for nii file...')
+                print('looking for nii file...')
                 self.update_log_thread.update_log_signal.emit('\nlooking for nii file...\n')
 
         # print('nii2png finished!')
-        self._mutex.unlock()
+        # self._mutex.unlock()
         self.update_log_thread.update_log_signal.emit('nii2png finished!')
         '''
         for nii_file in nii_files:
