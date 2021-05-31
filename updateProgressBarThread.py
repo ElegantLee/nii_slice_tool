@@ -32,6 +32,7 @@ class UpdateProgressBarThread(QThread):
         self.rotate = rotate
         self.rotate_num = rotate_num
         self.dataset = dataset
+        # self.modality = modality
         self._mutex = QMutex()
         self.update_log_thread = update_log_thread
         self.counter = 0
@@ -45,6 +46,55 @@ class UpdateProgressBarThread(QThread):
             self.nii2png_all_direction_folder()
         # self.finish_signal.emit('update success')
         return
+
+    def set_parameter_by_dataset(self, nx, ny, nz):
+        total_slices = 0
+        if self.dataset == 'ADNI':
+            if self.modality == 'T1':
+                pass
+            elif self.modality == 'T2':
+                pass
+            pass
+        elif self.dataset == 'IXI':
+            if self.modality == 'T1':
+                total_slices = max(nx, ny, nz)
+            elif self.modality == 'T2':
+                total_slices = nz
+            pass
+        elif self.dataset == 'OASIS':
+            total_slices = nx
+        else:
+            pass
+        return total_slices
+
+    def set_how_to_slice(self, image_array, current_slice):
+        data_axial = None
+        data_coronal = None
+        data_sagittal = None
+        if self.dataset == 'ADNI':
+            if self.modality == 'T1':
+                data_axial = numpy.rot90(image_array[:, :, current_slice])
+                data_coronal = numpy.rot90(image_array[:, current_slice, :])
+                data_sagittal = numpy.rot90(image_array[current_slice, :, :])
+            elif self.modality == 'T2':
+                pass
+            pass
+        elif self.dataset == 'IXI':
+            if self.modality == 'T1':
+                data_coronal = numpy.rot90(numpy.rot90(image_array[current_slice, :, :]))
+                data_axial = numpy.rot90(numpy.rot90(image_array[:, current_slice, :]))
+                # if current_slice < nz:
+                #     data_sagittal = numpy.rot90(image_array[:, :, current_slice])
+            elif self.modality == 'T2':
+                data_axial = numpy.rot90(numpy.rot90(numpy.rot90(image_array[:, :, current_slice])))
+                data_coronal = numpy.rot90(numpy.rot90(numpy.rot90(image_array[:, current_slice, :])))
+                data_sagittal = numpy.rot90(image_array[current_slice, :, :])
+            pass
+        elif self.dataset == 'OASIS':
+            pass
+        else:
+            pass
+        return data_axial, data_coronal, data_sagittal
 
     def set_rotate_by_direction_num(self, image_array, current_slice):
         if self.rotate_num == 90:
@@ -242,6 +292,11 @@ class UpdateProgressBarThread(QThread):
         self.update_log_thread.update_log_signal.emit('output sagittal folder is ' + output_path_sagittal)
         # set fn as your 4d nifti file
         image_array = nibabel.load(self.input_file).get_data()
+        ''' 
+            ADNI: []
+            IXI: T2[256, 256, 130]
+            OASIS:T1[176, 256, 256]
+        '''
         print(len(image_array.shape))
         print('image shape: ', image_array.shape)
         self.update_log_thread.update_log_signal.emit('len: {}'.format(len(image_array.shape)))
@@ -282,7 +337,10 @@ class UpdateProgressBarThread(QThread):
 
             # image_array[coronal, axial, Sagittal]  [冠状面，水平面，矢状面]
             slice_counter = 0
+            # total_slices = max(nx, ny, nz)
             total_slices = nz
+            # nx, ny, nz = 10, 12, 12
+            # total_slices = nz
             data_all = {}
 
             # 映射切片进度
@@ -304,25 +362,30 @@ class UpdateProgressBarThread(QThread):
                                 # data = numpy.rot90(image_array[:, :, current_slice])
                                 # data = numpy.rot90(image_array[:, current_slice, :])  # T1
                                 # [矢状, 冠状, 水平]
-                                data_axial = numpy.rot90(image_array[:, :, current_slice])  # T2
+                                data_axial = numpy.rot90(image_array[:, :, current_slice])  # T1
                                 data_coronal = numpy.rot90(image_array[:, current_slice, :])
                                 data_sagittal = numpy.rot90(image_array[current_slice, :, :])
                             elif self.rotate_num == 180:
                                 # data = numpy.rot90(numpy.rot90(image_array[:, :, current_slice]))
                                 # data = image_array[:, :, current_slice]  # T2
-                                data_axial = numpy.rot90(numpy.rot90(image_array[:, :, current_slice]))  # T2
+                                data_axial = numpy.rot90(numpy.rot90(image_array[:, :, current_slice]))  # T1
                                 data_coronal = numpy.rot90(numpy.rot90(image_array[:, current_slice, :]))
                                 data_sagittal = numpy.rot90(numpy.rot90(image_array[current_slice, :, :]))
                             elif self.rotate_num == 270:
-                                data_axial = numpy.rot90(numpy.rot90(numpy.rot90(image_array[:, :, current_slice])))  # T2
+                                data_axial = numpy.rot90(numpy.rot90(numpy.rot90(image_array[:, :, current_slice])))  # T1
                                 data_coronal = numpy.rot90(numpy.rot90(numpy.rot90(image_array[:, current_slice, :])))
                                 data_sagittal = numpy.rot90(numpy.rot90(numpy.rot90(image_array[current_slice, :, :])))
                     elif self.rotate.lower() == 'no':
                         # data = image_array[:, :, current_slice]
                         # data = image_array[:, current_slice, :]  # T1
-                        data_axial = image_array[:, :, current_slice]
-                        data_coronal = image_array[:, current_slice, :]
-                        data_sagittal = image_array[current_slice, :, :]
+                        # T1
+                        # data_axial = numpy.rot90(numpy.rot90(numpy.rot90(image_array[:, :, current_slice])))
+                        # data_coronal = numpy.rot90(image_array[:, current_slice, :])
+                        # data_sagittal = numpy.rot90(image_array[current_slice, :, :])
+                        # T2
+                        data_axial = numpy.rot90(numpy.rot90(numpy.rot90(image_array[:, :, current_slice])))
+                        data_coronal = numpy.rot90(numpy.rot90(numpy.rot90(image_array[:, current_slice, :])))
+                        data_sagittal = numpy.rot90(image_array[current_slice, :, :])
 
                     data_all['axial'] = data_axial
                     data_all['coronal'] = data_coronal
@@ -332,6 +395,8 @@ class UpdateProgressBarThread(QThread):
                     self.update_log_thread.update_log_signal.emit('Start slicing...')
                     if (slice_counter % 1) == 0:
                         for direction, data in data_all.items():
+                            # if direction == 'axial' and current_slice >= nx:
+                            #     continue
                             print('Saving image...')
                             self.update_log_thread.update_log_signal.emit('Saving {} image...'.format(direction))
                             image_name = self.input_file[:-4] + "_" + direction + "{:0>3}".format(
@@ -424,7 +489,7 @@ class UpdateProgressBarThread(QThread):
                                 # set 4d array dimension values
                                 nx, ny, nz = image_array.shape
                                 # nz = 10
-                                total_slices = max(nx, ny, nz)
+                                total_slices = nz
                                 # total_slices = 3
                                 data_all = {}
                                 # image_array[coronal, axial, Sagittal]  [冠状面，水平面，矢状面]
@@ -525,10 +590,12 @@ class UpdateProgressBarThread(QThread):
                                                     data_sagittal = numpy.rot90(
                                                         numpy.rot90(numpy.rot90(image_array[current_slice, :, :])))
                                         elif self.rotate.lower() == 'no':
-                                            data_coronal = numpy.rot90(numpy.rot90(image_array[current_slice, :, :]))
-                                            data_axial = numpy.rot90(numpy.rot90(image_array[:, current_slice, :]))
+                                            data_axial = numpy.rot90(numpy.rot90(numpy.rot90(image_array[:, :, current_slice])))
+                                            data_coronal = numpy.rot90(numpy.rot90(numpy.rot90(image_array[:, current_slice, :])))
+                                            # data_coronal = image_array[:, current_slice, :]
                                             if current_slice < nz:
-                                                data_sagittal = numpy.rot90(image_array[:, :, current_slice])
+                                                data_sagittal = numpy.rot90(image_array[current_slice, :, :])
+
 
                                         data_all['axial'] = data_axial
                                         data_all['coronal'] = data_coronal
